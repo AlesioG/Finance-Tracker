@@ -20,6 +20,7 @@ public class Account {
 
     private String name;
 
+    @Column(nullable = false)
     private BigDecimal balance;
 
     @ManyToOne
