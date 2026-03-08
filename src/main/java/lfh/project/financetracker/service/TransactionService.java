@@ -1,6 +1,7 @@
 package lfh.project.financetracker.service;
 
 import lfh.project.financetracker.dto.request.DepositRequest;
+import lfh.project.financetracker.dto.request.TransactionFilterRequest;
 import lfh.project.financetracker.dto.request.TransferRequest;
 import lfh.project.financetracker.dto.request.WithdrawRequest;
 import lfh.project.financetracker.dto.response.TransactionResponse;
@@ -17,9 +18,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -32,6 +32,8 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse deposit(String userEmail, DepositRequest request) {
+        validateAmount(request.getAmount());
+
         User user = getUserByEmail(userEmail);
         Account account = getOwnedAccount(user.getId(), request.getAccountId());
 
@@ -52,12 +54,12 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse withdraw(String userEmail, WithdrawRequest request) {
+        validateAmount(request.getAmount());
+
         User user = getUserByEmail(userEmail);
         Account account = getOwnedAccount(user.getId(), request.getAccountId());
 
-        if (account.getBalance().compareTo(request.getAmount()) < 0) {
-            throw new IllegalArgumentException("Insufficient funds");
-        }
+        validateSufficientBalance(account, request.getAmount());
 
         account.setBalance(account.getBalance().subtract(request.getAmount()));
         accountRepository.save(account);
@@ -76,18 +78,15 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse transfer(String userEmail, TransferRequest request) {
-        User user = getUserByEmail(userEmail);
+        validateAmount(request.getAmount());
+        validateDifferentAccounts(request.getFromAccountId(), request.getToAccountId());
 
-        if (request.getFromAccountId().equals(request.getToAccountId())) {
-            throw new IllegalArgumentException("Cannot transfer to the same account");
-        }
+        User user = getUserByEmail(userEmail);
 
         Account fromAccount = getOwnedAccount(user.getId(), request.getFromAccountId());
         Account toAccount = getOwnedAccount(user.getId(), request.getToAccountId());
 
-        if (fromAccount.getBalance().compareTo(request.getAmount()) < 0) {
-            throw new IllegalArgumentException("Insufficient funds");
-        }
+        validateSufficientBalance(fromAccount, request.getAmount());
 
         fromAccount.setBalance(fromAccount.getBalance().subtract(request.getAmount()));
         toAccount.setBalance(toAccount.getBalance().add(request.getAmount()));
@@ -110,39 +109,52 @@ public class TransactionService {
 
     public List<TransactionResponse> getHistory(
             String userEmail,
-            TransactionType type,
-            LocalDate startDate,
-            LocalDate endDate
+            TransactionFilterRequest filter
     ) {
         User user = getUserByEmail(userEmail);
 
         List<Transaction> transactions;
 
-        if (type != null && startDate != null && endDate != null) {
-            transactions = transactionRepository.findByAccountUserIdAndTypeAndTimestampBetweenOrderByTimestampDesc(
-                    user.getId(),
-                    type,
-                    startDate.atStartOfDay(),
-                    endDate.atTime(LocalTime.MAX)
-            );
-        } else if (type != null) {
-            transactions = transactionRepository.findByAccountUserIdAndTypeOrderByTimestampDesc(
-                    user.getId(),
-                    type
-            );
-        } else if (startDate != null && endDate != null) {
-            transactions = transactionRepository.findByAccountUserIdAndTimestampBetweenOrderByTimestampDesc(
-                    user.getId(),
-                    startDate.atStartOfDay(),
-                    endDate.atTime(LocalTime.MAX)
+        if (filter.getAccountId() != null) {
+            getOwnedAccount(filter.getAccountId(), user.getId());
+
+            transactions = transactionRepository.findByAccountIdWithFilters(
+                    filter.getAccountId(),
+                    filter.getType(),
+                    filter.getStartDate(),
+                    filter.getEndDate()
             );
         } else {
-            transactions = transactionRepository.findByAccountUserIdOrderByTimestampDesc(user.getId());
+            transactions = transactionRepository.findByUserIdWithFilters(
+                    user.getId(),
+                    filter.getType(),
+                    filter.getStartDate(),
+                    filter.getEndDate()
+            );
         }
 
         return transactions.stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    private void validateAmount(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+    }
+
+    private void validateSufficientBalance(Account account, BigDecimal amount) {
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new IllegalArgumentException("Insufficient balance. Available: " +
+                    account.getBalance() + ", Required: " + amount);
+        }
+    }
+
+    private void validateDifferentAccounts(Long fromAccountId, Long toAccountId) {
+        if (fromAccountId.equals(toAccountId)) {
+            throw new IllegalArgumentException("Cannot transfer to the same account");
+        }
     }
 
     private User getUserByEmail(String email) {

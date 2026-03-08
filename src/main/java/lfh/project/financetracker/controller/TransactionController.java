@@ -1,6 +1,7 @@
 package lfh.project.financetracker.controller;
 
 import lfh.project.financetracker.dto.request.DepositRequest;
+import lfh.project.financetracker.dto.request.TransactionFilterRequest;
 import lfh.project.financetracker.dto.request.TransferRequest;
 import lfh.project.financetracker.dto.request.WithdrawRequest;
 import lfh.project.financetracker.dto.response.TransactionResponse;
@@ -13,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -54,14 +55,22 @@ public class TransactionController {
     }
 
     @GetMapping("/history")
-    public ResponseEntity<List<TransactionResponse>> getHistory(
+    public ResponseEntity<List<TransactionResponse>> getTransactionHistory(
             Authentication authentication,
+            @RequestParam(required = false) Long accountId,
             @RequestParam(required = false) TransactionType type,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
     ) {
-        return ResponseEntity.ok(
-                transactionService.getHistory(authentication.getName(), type, startDate, endDate)
-        );
+        String userEmail = authentication.getName();
+
+        TransactionFilterRequest filter = TransactionFilterRequest.builder()
+                .accountId(accountId)
+                .type(type)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+
+        return ResponseEntity.ok(transactionService.getHistory(userEmail, filter));
     }
 }
