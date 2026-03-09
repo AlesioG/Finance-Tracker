@@ -14,6 +14,7 @@ import lfh.project.financetracker.repository.TransactionRepository;
 import lfh.project.financetracker.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
@@ -32,6 +34,7 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse deposit(String userEmail, DepositRequest request) {
+        log.info("Deposit requested for account {} amount {}", request.getAccountId(), request.getAmount());
         validateAmount(request.getAmount());
 
         User user = getUserByEmail(userEmail);
@@ -54,6 +57,7 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse withdraw(String userEmail, WithdrawRequest request) {
+        log.info("Withdrawal requested for account {} amount {}", request.getAccountId(), request.getAmount());
         validateAmount(request.getAmount());
 
         User user = getUserByEmail(userEmail);
@@ -78,6 +82,10 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse transfer(String userEmail, TransferRequest request) {
+        log.info("Transfer requested from account {} to account {} amount {}",
+                request.getFromAccountId(),
+                request.getToAccountId(),
+                request.getAmount());
         validateAmount(request.getAmount());
         validateDifferentAccounts(request.getFromAccountId(), request.getToAccountId());
 

@@ -9,11 +9,13 @@ import lfh.project.financetracker.repository.AccountRepository;
 import lfh.project.financetracker.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -31,6 +33,7 @@ public class AccountService {
                 .build();
 
         Account savedAccount = accountRepository.save(account);
+        log.info("Creating account '{}' with initial balance {}", request.getName(), request.getInitialBalance());
         return mapToResponse(savedAccount);
     }
 
@@ -61,6 +64,7 @@ public class AccountService {
         account.setName(request.getName());
 
         Account updatedAccount = accountRepository.save(account);
+        log.info("Updating account {}", accountId);
         return mapToResponse(updatedAccount);
     }
 
@@ -70,6 +74,7 @@ public class AccountService {
         Account account = accountRepository.findByIdAndUserId(accountId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Account not found"));
 
+        log.info("Deleting account {}", accountId);
         accountRepository.delete(account);
     }
 

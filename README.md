@@ -2,6 +2,8 @@
 
 REST API for a personal finance tracker built with Java 17, Spring Boot 3, Spring Security, JWT, JPA/Hibernate, and PostgreSQL.
 
+This project implements authentication, account management, and transaction processing for a personal finance system.
+
 ## Features
 
 - User registration and login with JWT authentication
@@ -35,6 +37,18 @@ src/main/java/lfh/project/financetracker
 - repository
 - security
 - service
+
+### Layer explanation
+
+| Layer | Responsibility |
+|-----|-----|
+| Controller | Handles HTTP requests and responses |
+| Service | Contains business logic |
+| Repository | Handles database access |
+| DTO | Request/response models |
+| Entity | Database models |
+| Security | JWT authentication and filters |
+| Config | Application configuration |
 
 ## Prerequisites
 
@@ -119,7 +133,7 @@ Response:
 ## Authorization
 
 For protected endpoints, include this header:
-```json
+```body
 Authorization: Bearer <jwt_token>
 ```
 ## Endpoints
@@ -281,7 +295,18 @@ Main tested services:
 - AuthService
 
 In addition to service-layer unit tests, integration tests were added for transaction workflows using MockMvc to verify authentication, account creation, transaction processing, and transaction history retrieval end-to-end.
-  
+
+### Structured Logging
+The application uses SLF4J + Logback with MDC-based contextual logging.
+
+Each request is tagged with:
+- request ID
+- user ID
+- user email
+- HTTP method
+- request path
+
+This makes it easier to trace user actions such as login, account creation, deposits, withdrawals, and transfers across application logs.
 ### Notes / Limitations
 
 - Admin role exists but admin-specific management endpoints were not implemented because they were not required by the assignment
@@ -290,8 +315,6 @@ In addition to service-layer unit tests, integration tests were added for transa
 
 - Docker Compose was not implemented
 
-- With more time, I would add structured logging, Swagger/OpenAPI documentation, and integration tests
-
 ### Possible Improvements
 
 - Docker Compose for app + PostgreSQL
@@ -299,4 +322,3 @@ In addition to service-layer unit tests, integration tests were added for transa
 - Integration tests for controllers
 - OpenAPI/Swagger documentation
 - Better error response structure
-- Audit logging for transactions

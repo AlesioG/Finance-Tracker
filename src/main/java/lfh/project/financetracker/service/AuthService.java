@@ -8,11 +8,13 @@ import lfh.project.financetracker.entity.User;
 import lfh.project.financetracker.repository.UserRepository;
 import lfh.project.financetracker.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -23,6 +25,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
+        log.info("User registration attempt for email {}", request.getEmail());
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email is already in use");
         }
@@ -48,6 +51,7 @@ public class AuthService {
         );
 
         String token = jwtService.generateToken(request.getEmail());
+        log.info("User login successful for email {}", request.getEmail());
         return new AuthResponse(token);
     }
 }
