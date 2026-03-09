@@ -116,7 +116,7 @@ public class TransactionService {
         List<Transaction> transactions;
 
         if (filter.getAccountId() != null) {
-            getOwnedAccount(filter.getAccountId(), user.getId());
+            getOwnedAccount( user.getId(),filter.getAccountId());
 
             transactions = transactionRepository.findByAccountIdWithFilters(
                     filter.getAccountId(),
@@ -174,7 +174,7 @@ public class TransactionService {
                 .amount(transaction.getAmount())
                 .timestamp(transaction.getTimestamp())
                 .accountId(transaction.getAccount().getId())
-                .targetAccountId(
+                .toAccountId(
                         transaction.getTargetAccount() != null ? transaction.getTargetAccount().getId() : null
                 )
                 .description(transaction.getDescription())

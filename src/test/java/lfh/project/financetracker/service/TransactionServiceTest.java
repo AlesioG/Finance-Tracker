@@ -239,7 +239,7 @@ class TransactionServiceTest {
         assertNotNull(response);
         assertEquals(TransactionType.TRANSFER, response.getType());
         assertEquals(new BigDecimal("200.00"), response.getAmount());
-        assertEquals(testAccount2.getId(), response.getTargetAccountId());
+        assertEquals(testAccount2.getId(), response.getToAccountId());
         verify(accountRepository, times(2)).save(any(Account.class));
         assertEquals(new BigDecimal("800.00"), testAccount.getBalance());
         assertEquals(new BigDecimal("700.00"), testAccount2.getBalance());

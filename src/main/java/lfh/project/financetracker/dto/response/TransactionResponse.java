@@ -18,6 +18,6 @@ public class TransactionResponse {
     private BigDecimal amount;
     private LocalDateTime timestamp;
     private Long accountId;
-    private Long targetAccountId;
+    private Long toAccountId;
     private String description;
 }
