@@ -11,11 +11,14 @@ import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    @Query("SELECT t FROM Transaction t WHERE t.account.id = :accountId " +
-            "AND (:type IS NULL OR t.type = :type) " +
-            "AND (:startDate IS NULL OR t.timestamp >= :startDate) " +
-            "AND (:endDate IS NULL OR t.timestamp <= :endDate) " +
-            "ORDER BY t.timestamp DESC")
+    @Query("""
+    SELECT t FROM Transaction t
+    WHERE t.account.id = :accountId
+      AND (cast(:type as string) IS NULL OR t.type = :type)
+      AND (cast(:startDate as timestamp) IS NULL OR t.timestamp >= :startDate)
+      AND (cast(:endDate as timestamp) IS NULL OR t.timestamp <= :endDate)
+    ORDER BY t.timestamp DESC
+    """)
     List<Transaction> findByAccountIdWithFilters(
             @Param("accountId") Long accountId,
             @Param("type") TransactionType type,
@@ -23,11 +26,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("endDate") LocalDateTime endDate
     );
 
-    @Query("SELECT t FROM Transaction t WHERE t.account.user.id = :userId " +
-            "AND (:type IS NULL OR t.type = :type) " +
-            "AND (:startDate IS NULL OR t.timestamp >= :startDate) " +
-            "AND (:endDate IS NULL OR t.timestamp <= :endDate) " +
-            "ORDER BY t.timestamp DESC")
+    @Query("""
+    SELECT t FROM Transaction t
+    WHERE t.account.user.id = :userId
+      AND (cast(:type as string) IS NULL OR t.type = :type)
+      AND (cast(:startDate as timestamp) IS NULL OR t.timestamp >= :startDate)
+      AND (cast(:endDate as timestamp) IS NULL OR t.timestamp <= :endDate)
+    ORDER BY t.timestamp DESC
+    """)
     List<Transaction> findByUserIdWithFilters(
             @Param("userId") Long userId,
             @Param("type") TransactionType type,
