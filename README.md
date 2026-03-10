@@ -67,13 +67,12 @@ CREATE DATABASE financetracker;
 ```
 Update src/main/resources/application.properties:
 
+## Properties Update
+
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/financetracker
-spring.datasource.username=postgres
+spring.datasource.username=your_username
 spring.datasource.password=your_password
-
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
 
 app.jwt.secret=your-very-long-secret-key-with-at-least-32-characters
 app.jwt.expiration=86400000
@@ -268,6 +267,9 @@ DTOs are used to avoid exposing entities directly in API responses and to keep r
 
 Spring Security with JWT was used to secure the API. Public access is limited to register and login endpoints, while all other endpoints require a valid token.
 
+### Rate limiting
+
+Rate limiting is implemented for authentication endpoints using bucket4j. 
 ### Balance updates
 
 Account balances are only changed through transaction operations such as deposit, withdrawal, and transfer. The account update endpoint does not allow direct balance modification.
@@ -311,14 +313,8 @@ This makes it easier to trace user actions such as login, account creation, depo
 
 - Admin role exists but admin-specific management endpoints were not implemented because they were not required by the assignment
 
-- Rate limiting was not implemented
-
-- Docker Compose was not implemented
-
 ### Possible Improvements
 
-- Docker Compose for app + PostgreSQL
-- Rate limiting on auth endpoints
-- Integration tests for controllers
+- Integration tests for all the controllers
 - OpenAPI/Swagger documentation
 - Better error response structure
