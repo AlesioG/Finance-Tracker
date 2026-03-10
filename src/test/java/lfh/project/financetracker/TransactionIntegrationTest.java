@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lfh.project.financetracker.dto.request.*;
 import lfh.project.financetracker.dto.response.AccountResponse;
 import lfh.project.financetracker.dto.response.AuthResponse;
-import lfh.project.financetracker.dto.response.TransactionResponse;
-import lfh.project.financetracker.entity.TransactionType;
 import lfh.project.financetracker.repository.AccountRepository;
 import lfh.project.financetracker.repository.TransactionRepository;
 import lfh.project.financetracker.repository.UserRepository;

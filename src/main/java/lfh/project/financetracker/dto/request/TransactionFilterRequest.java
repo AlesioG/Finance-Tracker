@@ -1,17 +1,15 @@
 package lfh.project.financetracker.dto.request;
 
 import lfh.project.financetracker.entity.TransactionType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TransactionFilterRequest {
 
     private Long accountId;

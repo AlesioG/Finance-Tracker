@@ -1,16 +1,16 @@
 package lfh.project.financetracker.dto.response;
 
 import lfh.project.financetracker.entity.TransactionType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
+@Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TransactionResponse {
 
     private Long id;

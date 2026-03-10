@@ -1,14 +1,14 @@
 package lfh.project.financetracker.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Getter
-@AllArgsConstructor
+@Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccountResponse {
 
     private Long id;
