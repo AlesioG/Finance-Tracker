@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16
+    container_name: finance-tracker-db
+    environment:
+      POSTGRES_DB: financetracker
+      POSTGRES_USER: (YOUR-USERNAME-HERE)
+      POSTGRES_PASSWORD: (YOUR-PASSWORD-HERE)
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d financetracker"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: finance-tracker-app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/financetracker
+      SPRING_DATASOURCE_USERNAME: (YOUR-USERNAME-HERE)
+      SPRING_DATASOURCE_PASSWORD: (YOUR-PASSWORD-HERE)
+      APP_JWT_SECRET: (YOUR-SECRET-HERE)
+      APP_JWT_EXPIRATION: 86400000
+
+volumes:
+  postgres_data:
